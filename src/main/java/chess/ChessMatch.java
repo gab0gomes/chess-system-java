@@ -8,10 +8,14 @@ import chess.pieces.Rook;
 
 public class ChessMatch {
     private Board board;
+    private int turn;
+    private Color currentPlayer;
 
     public ChessMatch() {
         this.board = new Board(8, 8);
-        initialSetup();
+        this.turn = 1;
+        this.currentPlayer = Color.WHITE;
+        this.initialSetup();
     }
 
     public ChessPiece[][] getPieces() {
@@ -22,6 +26,14 @@ public class ChessMatch {
             }
         }
         return mat;
+    }
+
+    public Color getCurrentPlayer() {
+        return this.currentPlayer;
+    }
+
+    public int getTurn() {
+        return this.turn;
     }
 
     public boolean[][] possibleMoves(ChessPosition sourcePosition) {
@@ -36,6 +48,7 @@ public class ChessMatch {
         this.validateSourcePosition(source);
         this.validateTargetPosition(source, target);
         Piece capturedPiece = this.makeMove(source, target);
+        this.nextTurn();
         return (ChessPiece) capturedPiece;
     }
 
@@ -50,6 +63,9 @@ public class ChessMatch {
         if (!board.thereIsAPiece(position)) {
             throw new ChessException("There's no piece on source position.");
         }
+        if (this.currentPlayer != ((ChessPiece) this.board.piece(position)).getColor()) {
+            throw new ChessException("The chosen piece is not yours.");
+        }
         if (!board.piece(position).isThereAnyPossibleMove()) {
             throw new ChessException("There's no possible moves for chosen piece.");
         }
@@ -60,23 +76,29 @@ public class ChessMatch {
             throw new ChessException("The chosen piece can't move to target position.");
         }
     }
+
+    private void nextTurn() {
+        this.turn++;
+        this.currentPlayer = (this.currentPlayer == Color.WHITE) ? Color.BLACK : Color.WHITE;
+    }
+
     private void placeNewPiece(char column, int row, ChessPiece piece) {
         this.board.placePiece(piece, new ChessPosition(column, row).toPosition());
     }
 
     private void initialSetup() {
-        placeNewPiece('c', 1, new Rook(board, Color.WHITE));
-        placeNewPiece('c', 2, new Rook(board, Color.WHITE));
-        placeNewPiece('d', 2, new Rook(board, Color.WHITE));
-        placeNewPiece('e', 2, new Rook(board, Color.WHITE));
-        placeNewPiece('e', 1, new Rook(board, Color.WHITE));
-        placeNewPiece('d', 1, new King(board, Color.WHITE));
+        this.placeNewPiece('c', 1, new Rook(board, Color.WHITE));
+        this.placeNewPiece('c', 2, new Rook(board, Color.WHITE));
+        this.placeNewPiece('d', 2, new Rook(board, Color.WHITE));
+        this.placeNewPiece('e', 2, new Rook(board, Color.WHITE));
+        this.placeNewPiece('e', 1, new Rook(board, Color.WHITE));
+        this.placeNewPiece('d', 1, new King(board, Color.WHITE));
 
-        placeNewPiece('c', 7, new Rook(board, Color.BLACK));
-        placeNewPiece('c', 8, new Rook(board, Color.BLACK));
-        placeNewPiece('d', 7, new Rook(board, Color.BLACK));
-        placeNewPiece('e', 7, new Rook(board, Color.BLACK));
-        placeNewPiece('e', 8, new Rook(board, Color.BLACK));
-        placeNewPiece('d', 8, new King(board, Color.BLACK));
+        this.placeNewPiece('c', 7, new Rook(board, Color.BLACK));
+        this.placeNewPiece('c', 8, new Rook(board, Color.BLACK));
+        this.placeNewPiece('d', 7, new Rook(board, Color.BLACK));
+        this.placeNewPiece('e', 7, new Rook(board, Color.BLACK));
+        this.placeNewPiece('e', 8, new Rook(board, Color.BLACK));
+        this.placeNewPiece('d', 8, new King(board, Color.BLACK));
     }
 }
